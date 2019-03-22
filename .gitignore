@@ -1,0 +1,5 @@
+.ipynb_checkpoints/
+__pycache__/
+mobile_image/
+venv/
+mobile_image.tar.gz
