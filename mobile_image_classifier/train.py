@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[59]:
+# In[10]:
 
 
 # set the matplotlib backend so figures can be saved in the background
@@ -23,27 +23,20 @@ import os
 import pandas as pd
 import cv2
 from PIL import Image
+from keras.callbacks import ModelCheckpoint
+from math import ceil
 
 from smallervggnet import SmallerVGGNet
+
+# initialize the number of epochs to train for, initial learning rate,
+# batch size, and image dimensions
 
 EPOCHS = 30
 INIT_LR = 1e-3
 BS = 128
 IMAGE_DIMS = (96, 96, 3)
 
-def train(dataset_path):
-    # initialize the number of epochs to train for, initial learning rate,
-    # batch size, and image dimensions
-
-    # grab the image paths and randomly shuffle them
-    
-    dataset = pd.read_csv(dataset_path)
-    
-    dataset = dataset[dataset
-                          .image_path
-                          .apply(lambda image_path: image_path.startswith('mobile_image'))]
-    
-    dataset = dataset.head(int(len(dataset)/1))
+def train(dataset):
     dataset.Category = dataset.Category.apply(str)
     
     unique_categories = dataset['Category'].unique().tolist()
@@ -120,6 +113,12 @@ def is_interactive():
     import __main__ as main
     return not hasattr(main, '__file__')
 
+
+# ### Set the arguments, if using a notebook then edit in `else`.
+
+# In[11]:
+
+
 # construct the argument parse and parse the arguments
 if not is_interactive():
     ap = argparse.ArgumentParser()
@@ -134,16 +133,26 @@ if not is_interactive():
     args = vars(ap.parse_args())
 else:
     args = {}
-    args['dataset'] = 'train.csv'
+    args['dataset'] = '../train.csv'
     args['model'] = 'mobile_categorizer.model'
     args['labelbin'] = 'lb.pickle'
     args["plot"] = 'plot.png'
 
 
-# In[60]:
+# ### Runs the training
+
+# In[ ]:
 
 
-model, lb, H = train(args['dataset'])
+dataset = pd.read_csv(args['dataset'])
+
+dataset = dataset[dataset
+                      .image_path
+                      .apply(lambda image_path: image_path.startswith('mobile_image'))]
+
+dataset = dataset.head(int(len(dataset)/1))
+
+model, lb, H = train(dataset)
 
 
 # In[ ]:
